@@ -10,6 +10,9 @@ let category=document.getElementById('category');
 let submit=document.getElementById('Submit');
 
 
+let mood="update";
+let tmp;
+
 function getTotal(){
     if(price.value !=''){
         let result=(+price.value+ +taxes.value+ +ads.value)-+discount.value;
@@ -19,45 +22,13 @@ function getTotal(){
     else{
         total.innerHTML='';
         total.style.background='rgb(170, 42, 42)'
+       
     }
 }
-
-
 //create product
 
-/*
-submit.onclick = function () {
-    console.log("Button clicked");
+let dataProd=[] ;
 
-    let newProd = {
-        Title: title.value,
-        Price: price.value,
-        Taxes: taxes.value,
-        Ads: ads.value,
-        Discount: discount.value,
-        Total: total.innerHTML,
-        Count: count.value,
-        Category: category.value
-    };
-
-    if (newProd.Count > 1) {
-        for (let i = 0; i < newProd.Count; i++) {
-            dataProd.push(newProd);
-        }
-    } else {
-        dataProd.push(newProd);
-    }
-
-    localStorage.setItem('Product', JSON.stringify(dataProd));
-    clearData();
-    showData();
-    console.log("newProd:", newProd);
-};*/
-
-// ...
-
-//second
-let dataProd ;
 if(localStorage.Product != null){
     dataProd=JSON.parse(localStorage.Product)
 }else{
@@ -75,23 +46,54 @@ submit.onclick=function(){
         Count:count.value,
         Category:category.value,
     }
+    //if(newProd.Price >0){
+    if(mood=='create' && newProd.Price >0){
+        
     if(newProd.Count>1){
         for(let i=0;i<newProd.Count;i++){
-            dataProd.unshift(newProd);
-s
-            //dataProd.push(newProd);
+            dataProd.push(newProd);
         }
-    }
-        else{
-            dataProd.unshift(newProd);
+    }else{
+            dataProd.push(newProd);
+        }
+    }else if(mood="update"){//}
+        dataProd[tmp]=newProd;
+        mood='create';
+        submit.innerHTML=("Create");
+        count.style.display='block';
 
-        }
+
+    }//}
+        
     localStorage.setItem('Product',JSON.stringify(dataProd))
     clearData();
     showData();
-    console.log(dataProd);
+
+    
 }
-//console.log(dataProd)
+
+//update 
+function updateData(i){
+    
+    
+   title.value=dataProd[i].Title;
+    price.value=dataProd[i].Price;
+    taxes.value=dataProd[i].Taxes;
+    ads.value=dataProd[i].Ads;
+    discount.value=dataProd[i].Discount;
+    getTotal();
+    count.style.display='none';
+    category.value=dataProd[i].Category;
+    Submit.innerHTML='update';
+     mood='update';
+    tmp=i;
+    scroll({
+        top:0,
+    behavior:"smooth",
+})
+
+
+}
 
 //save localstorage
 
@@ -108,10 +110,10 @@ function clearData(){
 
 }
 
-
 //read 
 function showData()
 {
+    getTotal();
     let table="";
     for(let i=0;i<dataProd.length;i++){
     table+=`
@@ -140,18 +142,13 @@ function showData()
 }
 showData()
 
-
-
 function deleteAllData(){
     dataProd.splice(0)
     localStorage.clear
     showData()
 }
 
-
 //count
-
-
 
 //delete one /all product
 
@@ -162,10 +159,74 @@ function deleteData(i){
 
 }
 
-//update 
 
-//function updateData(i){    console.log(i);}
 
 //search
+let searchMood = 'title';
+let searchInput = document.getElementById('search');
 
-//clean data
+function getSearchMood(id) {
+    let btnSearch = document.getElementById("clickedButtonId");
+    
+    if (clickedButtonId === 'searchByCategory') {
+        searchMood = 'category';
+        searchInput.placeholder = 'Search by Category';
+    } else {
+        searchMood = 'title';
+        searchInput.placeholder = 'Search by Title';
+    }
+
+    searchInput.focus();
+}
+/*
+let searchMood='title';
+let search=document.getElementById('search');
+
+function getsearchMood(id){
+
+    //let search=document.getElementById('search');
+    if(btnSearch.id=='searchByCategory'){ 
+        console.log(search.id);
+        searchMood='category';
+        search.placeholder='search by title';
+        
+    }else{
+        console.log(search.id);
+     searchMood='title';
+     search.placeholder='search by title';
+   
+  }
+    
+    search.focus();
+    
+}*/
+//search
+
+function searchData(value){
+    let table='';
+if(searchMood=='title'){
+    for(let i=0;i<dataProd;i++){
+        if(dataProd[i].title.includes(value)){
+            table+=`
+            <tr>
+                        <td>${i}</td>
+                        <td>${dataProd[i].Title}</td>
+                        <td>${dataProd[i].Price}</td>
+                        <td>${dataProd[i].Taxes}</td>
+                        <td>${dataProd[i].Ads}</td>
+                        <td>${dataProd[i].Discount}</td>
+                        <td>${dataProd[i].Total}</td>
+                        <td>${dataProd[i].Category}</td>
+                        <td><button onclick="updateData(${i})" id="update">update</button></td>
+                        <td><button onclick='deleteData(${i})' id="delete">delete</button></td>
+                    </tr>
+                  `
+
+        }
+    }
+
+}else{
+
+}
+document.getElementById('tbody').innerHTML=table;
+}
